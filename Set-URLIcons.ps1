@@ -1,9 +1,8 @@
-﻿$sheetsIco = "C:\Program Files\LinkIconSetter\sheets.ico"
-$docsIco = "C:\Program Files\LinkIconSetter\docs.ico"
+﻿$sheetsIco = "$pwd\sheets.ico"
+$docsIco = "$pwd\docs.ico"
 
-Get-ChildItem "C:\Users\Reubin.DESKTOP-I0L3FOR\Desktop\*.*" -include *.url | 
+Get-ChildItem "$env:USERPROFILE\Desktop\*.*" -include *.url | 
 Foreach-Object {
-    #$content = Get-Content $_.FullName
     $linkItem = $_.FullName
     $sh = New-Object -COM WScript.Shell
     $objShortcut = $sh.CreateShortcut($linkItem)
@@ -27,8 +26,12 @@ Foreach-Object {
     {
         #this shortcut's currently set icon location
         $iconLocation = GetIconLocation -file $objShortcut.FullName
+        If([string]::IsNullOrEmpty($iconLocation))
+        {
+            AddIconData -file $objShortcut.FullName -icon $docsIco
+        }
 
-        if (-Not $iconLocation -match $docsIco)
+        ElseIf (-Not $iconLocation.Contains($docsIco))
         {
             RemoveIconData -file $objShortcut.FullName
             AddIconData -file $objShortcut.FullName -icon $docsIco
